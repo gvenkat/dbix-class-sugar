@@ -1,0 +1,26 @@
+DBIx::Class::Sugar
+
+My attempt at adding sugar layer over querying DBIx::Class, Its at a very alpha stage.
+
+  use DBIx::Class::Sugar;
+
+  schema $schema;
+
+  # from can be passed 'table' OR result source name
+  my $rs = all from 'employee';
+
+  # same as above
+  my $rs = select '*' 
+    => from 'employee';
+
+  #
+  my $rs = select [ qw/id name dob/ ]
+    => from 'employee';
+
+  # 
+  $rs = select '*'
+    => from 'employee' 
+    => where $sqlt_clause
+    => order [ ]
+    => limit 10;
+
