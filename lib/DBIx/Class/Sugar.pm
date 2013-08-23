@@ -85,6 +85,11 @@
       # do something here
     }
 
+    if( $self->{clause}{__where}  ) {
+      $rs = $rs->search_rs( $self->where->condition );
+    }
+
+
     $rs;
 
   }
@@ -139,6 +144,28 @@
 
 
 }
+
+{
+  package __where;
+
+  use strict;
+  use Carp qw/confess/;
+
+  our @ISA = qw'__base';
+
+  sub new {
+    my ( $class, $condition ) = @_;
+
+    bless {
+      condition => $condition
+    }, $class;
+
+  }
+  
+
+
+}
+
 
 package DBIx::Class::Sugar;
 
@@ -196,7 +223,8 @@ sub sources () {
 }
 
 sub rs ($) {
-  schema()->resultset( get_source( shift )->{source_name} );
+  my $source = get_source( shift );
+  schema()->resultset( $source->{source_name} );
 }
 
 sub schema (;$) { 
@@ -239,7 +267,11 @@ sub select  ($;@) {
 
 }
 
-sub where   ($)   { }
+sub where   ($)   { 
+  __where->new( shift );
+}
+
+
 sub group   ($)   { }
 sub order   ($)   { }
 sub limit   ($)   { }

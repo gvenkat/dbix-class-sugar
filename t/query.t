@@ -14,10 +14,17 @@ isa_ok( $rs, 'DBIx::Class::ResultSet' );
 ok( schema->resultset( 'Employee' )->count == $rs->count );
 
 $rs = select '*' 
-  => from 'employee';
+  => from 'tags';
 
-ok( schema->resultset( 'Employee' )->count == $rs->count );
+ok( schema->resultset( 'Tag' )->count == $rs->count );
 
+my $clause = { tag => 'Blue' };
+
+$rs = select '*'
+  => from 'tags'
+  => where $clause;
+
+ok( schema->resultset( 'Tag' )->search_rs( $clause )->count == $rs->count );
 
 
 
