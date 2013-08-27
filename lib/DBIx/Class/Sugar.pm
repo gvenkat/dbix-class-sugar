@@ -1,4 +1,5 @@
 {
+
   package __base;
 
   use strict;
@@ -29,6 +30,7 @@
       confess( "Unknown method $key called on @{[ ref( $self ) ] }" );
     }
   }
+
 }
 
 { 
@@ -48,10 +50,7 @@
     }, $class;
 
   }
-
 }
-
-
 
 {
   package __select;
@@ -140,6 +139,12 @@
       $rs = $rs->search_rs( undef, $options );
     }
 
+    # there seems to be an iterator
+    if( $has_clause->( 'each' ) ) {
+      $self->each->execute( $rs );
+    }
+
+
     $rs;
 
   }
@@ -222,6 +227,36 @@
 
 }
 
+{
+  package __each;
+
+  use strict;
+  use Carp qw/confess/;
+
+  sub new {
+    my ( $class, $coderef ) = @_;
+
+    if( ref( $coderef ) ne 'CODE' ) {
+      confess "Needs a coderef for the iterator";
+    }
+
+    bless {
+      coderef => $coderef
+    }, $class;
+
+  }
+
+  sub execute {
+    my ( $self, $rs ) = @_;
+
+    while( my $row = $rs->next ) {
+      $self->coderef->( $row );
+    }
+  }
+
+}
+
+
 
 
 package DBIx::Class::Sugar;
@@ -258,6 +293,7 @@ sub import {
     order
     limit
     offset
+    each
   /;
 
   {
@@ -326,6 +362,12 @@ sub select  ($;@) {
 }
 
 
+sub each (&) {
+  my $code_ref = shift;
+  __each->new( $code_ref );
+}
+
+
 {
   no strict 'refs';
   for my $met ( qw/ where group order limit offset / ) {
@@ -390,9 +432,6 @@ sub get_source {
   $sources[ 0 ];
 
 }
-
-
-
 
 
 

@@ -22,11 +22,14 @@ Its just a play project, there's no intention to make it more comprehensive
   my $rs = select [ qw/id name dob/ ]
     => from 'employee';
 
-  # full clause
+  # larger example 
   $rs = select '*'
     => from 'employee' 
     => where $sqlt_clause
     => order 'name' 
     => limit 10
-    => offset 15;
+    => offset 15
+    => each {
+      my $row = shift;
+    };
 
