@@ -24,8 +24,26 @@ $rs = select '*'
   => from 'tags'
   => where $clause;
 
-ok( schema->resultset( 'Tag' )->search_rs( $clause )->count == $rs->count );
+my $t = schema->resultset( 'Tag' );
 
+ok( $t->search_rs( $clause )->count == $rs->count );
+
+$rs = select '*'
+  => from 'tags'
+  => order 'tag';
+
+ok( $t->search_rs( undef, { order_by => 'tag' } )->first->tag eq $rs->first->tag ); 
+
+$rs = select '*'
+  => from 'tags'
+  => order 'tag'
+  => limit 1 
+  => offset 5;
+
+$rs = all from 'tags'
+  => where $clause
+  => group 'tag'
+  => limit 1;
 
 
 done_testing;

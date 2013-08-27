@@ -31,6 +31,26 @@
   }
 }
 
+{ 
+  package __asis;
+
+  use strict;
+  use Carp qw/confess/;
+  use Scalar::Util qw/blessed/;
+
+  our @ISA = qw'__base';
+
+  sub new {
+    my ( $class, $value ) = @_;
+
+    bless {
+      value => $value
+    }, $class;
+
+  }
+
+}
+
 
 
 {
@@ -85,10 +105,14 @@
       # do something here
     }
 
-    if( $self->{clause}{__where}  ) {
+    my $has_clause = sub {
+      $self->{clause}{ '__' . shift };
+    };
+
+
+    if( $has_clause->( 'where' ) ) { 
       $rs = $rs->search_rs( $self->where->condition );
     }
-
 
     $rs;
 
@@ -100,6 +124,7 @@
   }
 
 }
+
 
 
 {
@@ -145,26 +170,32 @@
 
 }
 
+
 {
-  package __where;
 
-  use strict;
-  use Carp qw/confess/;
+  for my $klass ( qw/ order limit offset group where / ) {
 
-  our @ISA = qw'__base';
 
-  sub new {
-    my ( $class, $condition ) = @_;
+    my $code = "
+      package __$klass;
 
-    bless {
-      condition => $condition
-    }, $class;
+      use strict;
+      our \@ISA = qw'__asis';
+
+      # hack: must only be used in  where
+      # this will be split away soon enough
+      sub condition {
+        shift->value;
+      }
+
+    ";
+
+    eval $code;
 
   }
-  
-
 
 }
+
 
 
 package DBIx::Class::Sugar;
@@ -200,6 +231,7 @@ sub import {
     group
     order
     limit
+    offset
   /;
 
   {
@@ -267,15 +299,16 @@ sub select  ($;@) {
 
 }
 
-sub where   ($)   { 
-  __where->new( shift );
+
+{
+  no strict 'refs';
+  for my $met ( qw/ where group order limit offset / ) {
+    *$met = sub ($) {
+      my $item = '__' . $met;
+      $item->new( shift );
+    };
+  }
 }
-
-
-sub group   ($)   { }
-sub order   ($)   { }
-sub limit   ($)   { }
-
 
 sub call    ($) {
   my $item = shift;
