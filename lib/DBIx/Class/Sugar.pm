@@ -114,6 +114,32 @@
       $rs = $rs->search_rs( $self->where->condition );
     }
 
+    # mix order, group, offset, limit clause
+    # into the original
+    # FIXME: add select
+    {
+      my $options = { };
+
+      if( $has_clause->( 'order' ) ) {
+        $options->{order_by} = $self->order->value;
+      }
+
+      if( $has_clause->( 'group' ) ) {
+        $options->{group_by} = $self->group->value;
+      }
+
+      if( $has_clause->( 'limit' ) ) {
+
+        if( $has_clause->( 'offset' ) ) {
+          $options->{offset} = $self->offset->value;
+        }
+
+        $options->{limit} = $self->limit->value;
+      }
+
+      $rs = $rs->search_rs( undef, $options );
+    }
+
     $rs;
 
   }

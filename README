@@ -10,6 +10,10 @@ Its just a play project, there's no intention to make it more comprehensive
   # from can be passed 'table' OR result source name
   my $rs = all from 'employee';
 
+  # call find
+  my $row = get 20 
+    => from 'employee'
+
   # same as above
   my $rs = select '*' 
     => from 'employee';
@@ -18,10 +22,11 @@ Its just a play project, there's no intention to make it more comprehensive
   my $rs = select [ qw/id name dob/ ]
     => from 'employee';
 
-  # 
+  # full clause
   $rs = select '*'
     => from 'employee' 
     => where $sqlt_clause
-    => order [ ]
-    => limit 10;
+    => order 'name' 
+    => limit 10
+    => offset 15;
 
