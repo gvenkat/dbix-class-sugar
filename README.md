@@ -1,4 +1,4 @@
-DBIx::Class::Sugar
+# DBIx::Class::Sugar
 
 My attempt at adding sugar layer over querying DBIx::Class, Its at a very alpha stage.
 Its just a play project, there's no intention to make it more comprehensive
