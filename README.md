@@ -3,6 +3,7 @@ DBIx::Class::Sugar
 My attempt at adding sugar layer over querying DBIx::Class, Its at a very alpha stage.
 Its just a play project, there's no intention to make it more comprehensive
 
+```perl
   use DBIx::Class::Sugar;
 
   schema $schema;
@@ -32,4 +33,6 @@ Its just a play project, there's no intention to make it more comprehensive
     => each {
       my $row = shift;
     };
+
+```
 
